@@ -3,6 +3,8 @@ package views;
 import controller.AppController;
 import imageprocessing.ColorAdjustDialog;
 import imageprocessing.FiltrationDialog;
+import views.viewarea.MouseEventsListener;
+import views.viewarea.ViewArea;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
@@ -54,6 +56,11 @@ public class MainWindow extends JFrame implements MainView {
         this.menubar = new MainWindowMenubar();
         this.toolbar = new MainWindowToolbar();
         this.viewArea = new ViewArea();
+
+        MouseEventsListener mouseEventsListener = new MouseEventsListener(this.viewArea);
+        this.viewArea.addMouseListener(mouseEventsListener);
+        this.viewArea.addMouseMotionListener(mouseEventsListener);
+        this.viewArea.addMouseWheelListener(mouseEventsListener);
 
         this.filtrationDialog = new FiltrationDialog(this, true);
         this.colorAdjustDialog = new ColorAdjustDialog(this, true);

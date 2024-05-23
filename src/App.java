@@ -9,7 +9,7 @@ import javax.swing.*;
  * App manager
  */
 public class App {
-    public void run() {
+    public static void main(String[] args) {
         try {
             UIManager.setLookAndFeel(new FlatIntelliJLaf());
         } catch (Exception e) {

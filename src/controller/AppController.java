@@ -1,7 +1,7 @@
 package controller;
 
 import com.sun.jdi.InvalidTypeException;
-import helpers.IOManager;
+import utils.IOManager;
 import model.ImageModel;
 import imageprocessing.ImageProcessing;
 import views.MainView;
@@ -13,8 +13,8 @@ import java.io.IOException;
 import java.util.Stack;
 
 /**
- * AppController realise Controller functions in M(VC)-architecture.
- * Handle requests received from user by MainView and return responses.
+ * AppController plays the Controller role in M(VC)-architecture.
+ * It handles requests received from user by MainView and return responses.
  */
 public class AppController {
     private ImageModel imageModel;
