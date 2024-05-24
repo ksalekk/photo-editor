@@ -1,48 +1,28 @@
-package imageprocessing;
+package views.modals;
 
 import javax.swing.*;
 import java.awt.*;
 
-
 /**
- * Dialog window for brightness and contrast adjustment.
+ * Dialog window for image brightness and contrast processing.
  */
 public class ColorAdjustDialog extends JDialog {
-    /**
-     * Slider for brightness set
-     */
-    public JSlider brightnessSlider;
 
-    /**
-     * Factor scaling brightness slider values
-     */
+    /** Factors that allows to map slider value to processed value */
     public final int BRIGHTNESS_FACTOR = 1;
+    public final double CONTRAST_FACTOR = 0.01f;
 
-    /**
-     * Slider for contrast slider
-     */
+
+    public JSlider brightnessSlider;
     public JSlider contrastSlider;
-
-    /**
-     * Factor scaling contrast slider values
-     */
-    public final float CONTRAST_FACTOR = 0.01f;
-
-    /**
-     * Button for apply changes.
-     */
     public JButton submitButton;
 
     public ColorAdjustDialog(Frame parent, boolean modal) {
-        super(parent, "Change Color Properties", modal);
-
+        super(parent, "Changing color", modal);
         dialogSetup(parent);
     }
 
-    /**
-     * Setup dialog layout.
-     * @param parent parent window for dialog window
-     */
+
     private void dialogSetup(Frame parent) {
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         setSize(500, 400);
@@ -53,8 +33,8 @@ public class ColorAdjustDialog extends JDialog {
         contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
         contentPane.setBorder(BorderFactory.createEmptyBorder(30, 10, 10, 30));
 
-        brightnessSlider = createSlider(-300, 300, 0);
-        contrastSlider = createSlider(0, 1000, 100);
+        brightnessSlider = buildSlider(-255, 255, 0);
+        contrastSlider = buildSlider(0, 1000, 100);
 
         submitButton = new JButton("APPLY");
         submitButton.setAlignmentX(JButton.CENTER);
@@ -64,14 +44,14 @@ public class ColorAdjustDialog extends JDialog {
         contentPane.add(submitButton);
     }
 
+
     /**
-     * Create single panel with slider and spinner
+     * Create and return single panel with slider and spinner
      * @param name Name for property changed by slider
      * @param slider JSlider object for changing property
-     * @param scalingFactor factor which scaling values from slider
-     * @return built color property pane with slider and spinner
+     * @param scalingFactor factor that scales slider values
      */
-    private JPanel createColorPropertyPanel(String name, JSlider slider, float scalingFactor) {
+    private JPanel createColorPropertyPanel(String name, JSlider slider, double scalingFactor) {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
         panel.setBorder(BorderFactory.createEmptyBorder(20, 10, 20, 10));
@@ -85,30 +65,19 @@ public class ColorAdjustDialog extends JDialog {
                 slider.getMaximum()*scalingFactor,
                 scalingFactor
         ));
+
         spinner.setMaximumSize(new Dimension(spinner.getWidth(), 30));
         spinner.addChangeListener(e -> {
-//            if(spinner.getValue() instanceof Double) {
-//                System.out.println("Double");
-//            } else if (spinner.getValue() instanceof Float) {
-//                System.out.println("Float");
-//            }
-
-            if(spinner.getValue() instanceof Float) {
-                float spinnerVal = (float) spinner.getValue();
-                int realValue = (int)(spinnerVal / scalingFactor);
-                slider.setValue(realValue);
-            } else {
-                double spinnerVal = (double) spinner.getValue();
-                int realValue = (int)(spinnerVal / scalingFactor);
-                slider.setValue(realValue);
-            }
-
+            double spinnerVal = (double) spinner.getValue();
+            int realValue = (int)(spinnerVal / scalingFactor);
+            slider.setValue(realValue);
         });
+
         slider.addChangeListener(e -> {
-            float sliderVal = (float) slider.getValue();
+            double sliderVal = slider.getValue();
             spinner.setValue(sliderVal * scalingFactor);
-
         });
+
         panel.add(label);
         panel.add(Box.createHorizontalGlue());
         panel.add(slider);
@@ -118,13 +87,12 @@ public class ColorAdjustDialog extends JDialog {
     }
 
     /**
-     * Create single slider with passed parameters
+     * Create and return single slider with specified parameters
      * @param min min slider value
      * @param max max slider value
      * @param init init slider value
-     * @return built JSlider object
      */
-    private JSlider createSlider(int min, int max, int init) {
+    private JSlider buildSlider(int min, int max, int init) {
         return new JSlider(min, max, init);
     }
 
@@ -134,5 +102,14 @@ public class ColorAdjustDialog extends JDialog {
     public void resetSliders() {
         brightnessSlider.setValue(0);
         contrastSlider.setValue(100);
+    }
+
+
+    public double getBrightnessValue() {
+        return this.brightnessSlider.getValue();
+    }
+
+    public float getContrastValue() {
+        return (float) (this.contrastSlider.getValue() * CONTRAST_FACTOR);
     }
 }

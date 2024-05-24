@@ -1,8 +1,8 @@
 package views;
 
 import controller.AppController;
-import imageprocessing.ColorAdjustDialog;
-import imageprocessing.FiltrationDialog;
+import views.modals.ColorAdjustDialog;
+import views.modals.FiltrationDialog;
 import views.viewarea.MouseEventsListener;
 import views.viewarea.ViewArea;
 
@@ -14,39 +14,23 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 
+
 /**
  * The MainWindow class represents the main GUI window of the application.
  */
 public class MainWindow extends JFrame implements MainView {
 
     /**
-     * Controller used for handling user requests.
+     * Controller used for handling user interactions.
      */
     private final AppController appController;
 
-    /**
-     * Main window menu bar. Allows user to execute some app/file actions (loading, saving, exit).
-     */
     private final MainWindowMenubar menubar;
-
-    /**
-     * Main window toolbar. Allows user to execute image processing actions on loaded image.
-     */
     private final MainWindowToolbar toolbar;
 
-    /**
-     * Scrollable and draggable box that stores image and allows user to interact.
-     */
     private final ViewArea viewArea;
 
-    /**
-     * Convolution filter dialog.
-     */
     private final FiltrationDialog filtrationDialog;
-
-    /**
-     * Brightness and contrast adjustment dialog
-     */
     private final ColorAdjustDialog colorAdjustDialog;
 
 
@@ -72,15 +56,15 @@ public class MainWindow extends JFrame implements MainView {
         mainWindowSetup();
     }
 
+
     /**
-     * Show dialog for user to choose one image file from user's computer. Return a string that is
-     * the absolute path to the selected file or null if user close dialog.
-     * @return image file absolute path if user choose approve option and null otherwise.
+     * Show dialog for user to choose one image file from user's computer.
+     * @return absolute path (String) to the selected file or null if user close dialog.
      */
     @Override
     public String getImageSourceFromUser() {
         JFileChooser fileChooser = new JFileChooser(".");
-        FileFilter filter = new FileNameExtensionFilter("Images", "jpg", "png", "gif");
+        FileFilter filter = new FileNameExtensionFilter("Images", "jpg", "png");
         fileChooser.setFileFilter(filter);
 
         int response = fileChooser.showOpenDialog(this);
@@ -92,7 +76,7 @@ public class MainWindow extends JFrame implements MainView {
     }
 
     /**
-     * Show dialog for user to set  user's path to saving edited image.
+     * Show dialog for user to set  user's path for saving edited image.
      * @return String object that is the absolute path to the selected directory and filename
      * or null if user close dialog.
      */
@@ -107,9 +91,9 @@ public class MainWindow extends JFrame implements MainView {
         }
     }
 
+
     /**
-     * Display provided image in view area.
-     * @param image represents edited image that will be displayed
+     * Display provided image in the view area.
      */
     @Override
     public void displayImage(BufferedImage image) {
@@ -124,8 +108,9 @@ public class MainWindow extends JFrame implements MainView {
         viewArea.setDisplayedImage(null);
     }
 
+
     /**
-     * Enables/Disables image processing and file saving, closing buttons
+     * Enables/Disables these toolbar and menubar actions that require loaded image.
      * @param imageIsLoaded True to enable, false to disable.
      */
     @Override
@@ -139,7 +124,6 @@ public class MainWindow extends JFrame implements MainView {
 
     /**
      * Set undo button mode.
-     * @param enable True to enable, false to disable the "Undo" functionality.
      */
     @Override
     public void enableUndo(boolean enable) {
@@ -150,40 +134,33 @@ public class MainWindow extends JFrame implements MainView {
 
     /**
      * Set redo button mode.
-     * @param enable True to enable, false to disable the "Redo" functionality.
      */
     @Override
     public void enableRedo(boolean enable) {
         menubar.redo.setEnabled(enable);
     }
 
+
+
+
     /**
      * Connect filtration dialog actions with controller.
      */
     private void filtrationDialogSetup() {
-        filtrationDialog.runButton.addActionListener(e -> appController.handleFiltration(filtrationDialog.getKernel()));
         filtrationDialog.runButton.addActionListener(e -> {
+            appController.handleFiltration(filtrationDialog.getKernel());
             filtrationDialog.dispose();
         });
     }
 
     /**
-     * Connect color adjustment dialog with controller. Set proper scaling of sliders.
+     * Connect color adjustment dialog with controller.
      */
     private void colorAdjustmentDialogSetup() {
-        colorAdjustDialog.brightnessSlider.addChangeListener(e -> {
-            int offset = colorAdjustDialog.brightnessSlider.getValue();
-            appController.handleBrightness(offset);
-        });
-
-        colorAdjustDialog.contrastSlider.addChangeListener(e -> {
-            float scale = colorAdjustDialog.contrastSlider.getValue();
-            appController.handleContrast(scale*0.01f);
-        });
-
+        colorAdjustDialog.brightnessSlider.addChangeListener(e -> appController.handleBrightness(colorAdjustDialog.brightnessSlider.getValue()));
+        colorAdjustDialog.contrastSlider.addChangeListener(e -> appController.handleContrast(colorAdjustDialog.getContrastValue()));
         colorAdjustDialog.submitButton.addActionListener(e -> {
             appController.applyChanges();
-            colorAdjustDialog.resetSliders();
             colorAdjustDialog.dispose();
         });
 
@@ -202,21 +179,21 @@ public class MainWindow extends JFrame implements MainView {
      * Connect menu bar and toolbar actions with controller handlers.
      */
     private void actionsSetup() {
-        menubar.open.addActionListener(e -> appController.loadImage());
-        menubar.save.addActionListener(e -> appController.saveImage());
+        menubar.open.addActionListener(e -> appController.handleLoadImage());
+        menubar.save.addActionListener(e -> appController.handleSaveImage());
         menubar.exit.addActionListener(e -> appController.exit());
 
         menubar.undo.addActionListener(e -> appController.handleUndo());
         menubar.redo.addActionListener(e -> appController.handleRedo());
 
-        toolbar.grayScaleButton.addActionListener(e -> appController.toGrayScale());
+        toolbar.grayScaleButton.addActionListener(e -> appController.handleToGrayScale());
         toolbar.filtrationButton.addActionListener(e -> filtrationDialog.setVisible(true));
         toolbar.adjustColorButton.addActionListener(e -> colorAdjustDialog.setVisible(true));
     }
 
 
     /**
-     * Setup design, connecting with components and disable image processing actions buttons.
+     * Setup main window design.
      */
     private void mainWindowSetup() {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -224,7 +201,7 @@ public class MainWindow extends JFrame implements MainView {
         setLocation(200, 100);
 
         setTitle("PhotoEditor");
-        setIconImage(new ImageIcon("resources\\camera.png").getImage());
+        setIconImage(new ImageIcon("resources/camera.png").getImage());
 
         setJMenuBar(menubar);
         Container windowPane = getContentPane();
@@ -237,11 +214,5 @@ public class MainWindow extends JFrame implements MainView {
 
         pack();
         setVisible(true);
-    }
-
-    @Override
-    public void pack() {
-        super.pack();
-        viewArea.centerImage();
     }
 }

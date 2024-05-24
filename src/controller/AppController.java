@@ -3,11 +3,10 @@ package controller;
 import com.sun.jdi.InvalidTypeException;
 import utils.IOManager;
 import model.ImageModel;
-import imageprocessing.ImageProcessing;
+import utils.ImageProcessing;
 import views.MainView;
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.Stack;
@@ -36,7 +35,8 @@ public class AppController {
         this.imageModel = imageModel;
     }
 
-    public void loadImage() {
+    /** Get image absolute path from user and load this image */
+    public void handleLoadImage() {
         String filename = mainView.getImageSourceFromUser();
         if (filename == null) {
             return;
@@ -46,10 +46,7 @@ public class AppController {
         try {
             input = IOManager.loadImage(filename);
         } catch (InvalidTypeException e) {
-            displayWarning(
-                    "Invalid Image Type",
-                    e.getMessage()
-            );
+            JOptionPane.showMessageDialog(new JFrame(), "Invalid Image Type", e.getMessage(), JOptionPane.ERROR_MESSAGE);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -57,18 +54,17 @@ public class AppController {
 
         if(input != null) {
             addToUndoStack(imageModel.getProcessedImage());
-            imageModel.setProcessedImage(input);
+            imageModel.setOriginalImage(input);
             mainView.setViewMode(true);
             mainView.enableUndo(true);
 
             mainView.displayImage(input);
-            if (((JFrame) mainView).getExtendedState() != Frame.MAXIMIZED_BOTH) {
-                ((JFrame) mainView).pack();
-            }
         }
     }
 
-    public void saveImage() {
+
+    /** Get absolute path from user and save there processed image (as jpg) */
+    public void handleSaveImage() {
         String dirname = mainView.getImageDestinationFromUser();
         if(dirname == null) {
             return;
@@ -76,24 +72,7 @@ public class AppController {
         IOManager.saveImage(imageModel.getProcessedImage(), dirname, "jpg");
     }
 
-
-    public void handleUndo() {
-        if(undoStack.empty()) {
-            return;
-        }
-
-        redoStack.push(imageModel.getProcessedImage());
-        mainView.enableRedo(true);
-
-        BufferedImage prev = undoStack.pop();
-        if(undoStack.empty()) {
-            mainView.enableUndo(false);
-        }
-
-        imageModel.setProcessedImage(prev);
-        mainView.displayImage(prev);
-    }
-
+    /** Push current processed image to the undo stack, pull image from the redo stack */
     public void handleRedo() {
         if(redoStack.empty()) {
             return;
@@ -111,14 +90,27 @@ public class AppController {
         mainView.displayImage(next);
     }
 
-    private void addToUndoStack(BufferedImage prevImage) {
-        undoStack.push(prevImage);
+    /** Push current processed image to the redo stack, pull image from the undo stack */
+    public void handleUndo() {
+        if(undoStack.empty()) {
+            return;
+        }
 
-        mainView.enableRedo(false);
-        redoStack.clear();
+        redoStack.push(imageModel.getProcessedImage());
+        mainView.enableRedo(true);
+
+        BufferedImage prev = undoStack.pop();
+        if(undoStack.empty()) {
+            mainView.enableUndo(false);
+        }
+
+        imageModel.setProcessedImage(prev);
+        mainView.displayImage(prev);
     }
 
-    public void toGrayScale() {
+
+    /** Convert current processed image to the gray scale */
+    public void handleToGrayScale() {
         BufferedImage input = imageModel.getProcessedImage();
         if(input.getType() == BufferedImage.TYPE_BYTE_GRAY) {
             return;
@@ -130,6 +122,7 @@ public class AppController {
         mainView.displayImage(resultImage);
     }
 
+    /** Filter processed image with the specified kernel */
     public void handleFiltration(float[] kernelElements) {
         BufferedImage input = imageModel.getProcessedImage();
         addToUndoStack(input);
@@ -138,40 +131,41 @@ public class AppController {
         mainView.displayImage(resultImage);
     }
 
+    /** Change processed image brightness with specified offset */
     public void handleBrightness(int offset) {
-        BufferedImage input = imageModel.getProcessedImage();
-        imageModel.displayedImageOffset = offset;
-        BufferedImage resultImage = ImageProcessing.colorAdjustment(
-                input,
-                imageModel.displayedImageOffset,
-                imageModel.displayedImageScale);
-
-        imageModel.setDisplayedImage(resultImage);
-        mainView.displayImage(resultImage);
+        imageModel.setDisplayedImageOffset(offset);
+        handleColor();
     }
 
+    /** Change processed image contrast with specified scale */
     public void handleContrast(float scale) {
+        imageModel.setDisplayedImageScale(scale);
+        handleColor();
+    }
+
+    private void handleColor() {
         BufferedImage input = imageModel.getProcessedImage();
-        imageModel.displayedImageScale = scale;
         BufferedImage resultImage = ImageProcessing.colorAdjustment(
                 input,
-                imageModel.displayedImageOffset,
-                imageModel.displayedImageScale
+                imageModel.getDisplayedImageOffset(),
+                imageModel.getDisplayedImageScale()
         );
         imageModel.setDisplayedImage(resultImage);
         mainView.displayImage(resultImage);
     }
 
+
+    /** Save current displayed image as processed image */
     public void applyChanges() {
-        imageModel.displayedImageScale = 1f;
-        imageModel.displayedImageOffset = 0;
+        imageModel.setDisplayedImageScale(1f);
+        imageModel.setDisplayedImageOffset(0);
         addToUndoStack(imageModel.getProcessedImage());
         imageModel.setProcessedImage(imageModel.getDisplayedImage());
     }
 
     public void closedDialogWindow() {
-        imageModel.displayedImageScale = 1f;
-        imageModel.displayedImageOffset = 0;
+        imageModel.setDisplayedImageScale(1f);
+        imageModel.setDisplayedImageOffset(0);
         mainView.displayImage(imageModel.getProcessedImage());
     }
 
@@ -179,12 +173,13 @@ public class AppController {
         System.exit(0);
     }
 
-    private void displayWarning(String title, String message) {
-        JOptionPane.showMessageDialog(
-                new JFrame(),
-                message,
-                title,
-                JOptionPane.ERROR_MESSAGE
-        );
+
+    private void addToUndoStack(BufferedImage prevImage) {
+        undoStack.push(prevImage);
+
+        mainView.enableRedo(false);
+        redoStack.clear();
     }
+
+
 }

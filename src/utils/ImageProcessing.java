@@ -1,16 +1,15 @@
-package imageprocessing;
+package utils;
 
 import java.awt.*;
 import java.awt.image.*;
 
 /**
- * Processor class that is responsible for image processing. It may be used as static class.
+ * Processor class that is responsible for image processing.
  */
 public class ImageProcessing {
+
     /**
-     * Convert input image to gray scale.
-     * @param input converted image.
-     * @return input image converted to gray scale
+     * Convert input image to gray scale and returns it.
      */
     public static BufferedImage RGBtoGray(BufferedImage input) {
         BufferedImage output = new BufferedImage(input.getWidth(), input.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
@@ -24,10 +23,7 @@ public class ImageProcessing {
     }
 
     /**
-     * Convolve image with 3x3 kernel mask passed as numbers array
-     * @param input input image
-     * @param kernelElements kernel mask
-     * @return result image
+     * Convolve specified image with 3x3 kernel mask passed to method as numbers array and returns result.
      */
     public static BufferedImage linearFiltration(BufferedImage input, float[] kernelElements) {
         ConvolveOp filtration = new ConvolveOp(new Kernel(3, 3, kernelElements));
@@ -37,9 +33,8 @@ public class ImageProcessing {
     /**
      * Change image contrast or/and brightness.
      * @param input input image
-     * @param offset offset added to every pixel of input image
-     * @param scale scaling factor for multiplying every pixel value (gray scale) or multiplying
-     *             brightness channel value in HSB color space for every pixel
+     * @param offset brightness offset
+     * @param scale contrast scaling factor
      * @return result image
      */
     public static BufferedImage colorAdjustment(BufferedImage input, int offset, float scale) {
@@ -53,6 +48,7 @@ public class ImageProcessing {
 
         return result;
     }
+
 
     /**
      * Change image brightness by add offset to every pixel of input image.
@@ -73,7 +69,7 @@ public class ImageProcessing {
 
     /**
      * Change image contrast by multiplying pixel value by scale factor (gray scale) or
-     * multiplying brightness channel value in HSB color space by scale factor for every pixel
+     * multiplying brightness channel value in HSB color space by scale factor for every pixel (color)
      * @param input input image
      * @param scale scale factor for multiplying
      * @return result image

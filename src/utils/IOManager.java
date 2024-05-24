@@ -13,9 +13,7 @@ import java.io.IOException;
 public class IOManager {
 
     /**
-     * Load image from specified path.
-     * @param absPath absolute path for file
-     * @return BufferedImage object that stores image
+     * Load image from specified path and returns it as the BufferedImage.
      */
     public static BufferedImage loadImage(String absPath) throws IOException, InvalidTypeException {
         BufferedImage img = ImageIO.read(new File(absPath));
@@ -29,7 +27,7 @@ public class IOManager {
      * Save image in specified path.
      * @param img saved image
      * @param absPath absolute path for saving location
-     * @param formatName image format (e.g. jpg)
+     * @param formatName image format
      */
     public static void saveImage(BufferedImage img, String absPath, String formatName) {
         try {

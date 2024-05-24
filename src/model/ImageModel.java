@@ -7,10 +7,32 @@ import java.util.HashMap;
  * App model, that stores useful data about image.
  */
 public class ImageModel {
+    /** Loaded image */
+    private BufferedImage originalImage = null;
+    public void setOriginalImage(BufferedImage originalImage) {
+        this.originalImage = originalImage;
+        this.setProcessedImage(originalImage);
+    }
+
+    public BufferedImage getOriginalImage() {
+        return  this.originalImage;
+    }
+
+
     /**
-     * Current processed image, which state is saved (not have to be current displayed image).
+     * Current processed image, whose state is saved (not have to be current displayed image).
      */
     private BufferedImage processedImage = null;
+
+    public void setProcessedImage(BufferedImage processedImage) {
+        this.processedImage = processedImage;
+        setDisplayedImage(processedImage);
+    }
+
+    public BufferedImage getProcessedImage() {
+        return processedImage;
+    }
+
 
     /**
      * Current displayed image, which state has been not saved yet. Displayed image became processed image,
@@ -18,42 +40,40 @@ public class ImageModel {
      */
     private BufferedImage displayedImage = null;
 
-    /**
-     * Stores temporary state variables for displayed image
-     */
-    public int displayedImageOffset = 0;
-    public float displayedImageScale = 1f;
-
-    /**
-     * Set passed image as processed image.
-     * @param processedImage image which state will be saved.
-     */
-    public void setProcessedImage(BufferedImage processedImage) {
-        this.processedImage = processedImage;
-        setDisplayedImage(processedImage);
-    }
-
-    /**
-     * Get processed image.
-     * @return processed image
-     */
-    public BufferedImage getProcessedImage() {
-        return processedImage;
-    }
-
-    /**
-     * Set passed image as displayed image.
-     * @param displayedImage - image which is currently displayed.
-     */
     public void setDisplayedImage(BufferedImage displayedImage) {
         this.displayedImage = displayedImage;
     }
 
-    /**
-     * Get displayed image
-     * @return displayed image
-     */
     public BufferedImage getDisplayedImage() {
         return displayedImage;
     }
+
+
+
+    /**
+     * Stores temporary state variables for displayed image
+     */
+    private int displayedImageOffset = 0;
+    private float displayedImageScale = 1f;
+
+    public int getDisplayedImageOffset() {
+        return displayedImageOffset;
+    }
+
+    public void setDisplayedImageOffset(int displayedImageOffset) {
+        this.displayedImageOffset = displayedImageOffset;
+    }
+
+    public float getDisplayedImageScale() {
+        return displayedImageScale;
+    }
+
+    public void setDisplayedImageScale(float displayedImageScale) {
+        this.displayedImageScale = displayedImageScale;
+    }
+
+
+
+
+
 }
