@@ -5,9 +5,6 @@ import views.MainWindow;
 
 import javax.swing.*;
 
-/**
- * App manager
- */
 public class App {
     public static void main(String[] args) {
         try {
