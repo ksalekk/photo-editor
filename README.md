@@ -17,6 +17,21 @@ java -jar photo-editor.jar
 The app uses Java Swing and external FlatLaf library (https://www.formdev.com/flatlaf/).
 
 ## Demo
+Brightness and contrast adjustment
+![](./demo-images/1.png)
+
+Conversion to grayscale + brightness and contrast adjustment
+![](./demo-images/2.png)
+
+Conversion to grayscale + filtration with the Laplace filter
+![](./demo-images/3.png)
+
+Conversion to grayscale + filtration with the highpass filter
+![](./demo-images/4.png)
+
+Conversion to grayscale + filtration with the Laplace filter + brightness and contrast adjustment
+![](./demo-images/5.png)
+
 
 
 
